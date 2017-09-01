@@ -1,6 +1,22 @@
 # Import the RSM library
 library("rsm")
 
+# Generate a first or second order model? ("1" for first, "2" for second)
+ORDER_MODEL = "1"
+
+getOrderResponse <- function(orderNum, codedVals){
+  print(orderNum)
+  if (orderNum == "2"){
+    result = rsm(crudeYield ~ SO(x1, x2, x3), data = codedVals);
+  }
+  else if (orderNum == "1"){
+    result = rsm(crudeYield ~ FO(x1, x2, x3) + TWI(x1, x2, x3), data = codedVals);
+  } else {
+    result = rsm(crudeYield ~ SO(x1, x2, x3), data = codedVals);
+  }
+  result
+}
+
 #Data for the RSM (Currently with dummy data)
 mockRsmCrudeYieldData.data <-
   data.frame(
@@ -20,8 +36,7 @@ codedValues.val <- coded.data(mockRsmCrudeYieldData.data,
 # Define BBD function parameters
 numFactors = 4
 numCenterPts = 3
-
-codedValues.rsm  <- rsm(crudeYield ~ SO(x1, x2, x3), data = codedValues.val)
+codedValues.rsm  <- getOrderResponse(ORDER_MODEL, codedValues.val)
 print(summary(codedValues.rsm))
 png(file = "testPlot3.png")
 
@@ -32,3 +47,4 @@ persp(codedValues.rsm,
       at = summary(codedValues.rsm)$canonical$xs
 )
 dev.off()
+
